@@ -9,12 +9,12 @@
 import AVFoundation
 import Photos
 
-class PhotoCaptureDelegate: NSObject {
-
-    private(set) var requestedPhotoSettings: AVCapturePhotoSettings
-    private let willCapturePhotoAnimation: () -> Void
-    private let livePhotoCaptureHandler: (Bool) -> Void
-    lazy var contex = CIContext()
-//    private let completionHandler: (PhotoCaptureProcessor) -> Void
-    
-}
+//class PhotoCaptureDelegate: NSObject {
+//
+//    private(set) var requestedPhotoSettings: AVCapturePhotoSettings
+//    private let willCapturePhotoAnimation: () -> Void
+//    private let livePhotoCaptureHandler: (Bool) -> Void
+//    lazy var contex = CIContext()
+////    private let completionHandler: (PhotoCaptureProcessor) -> Void
+//    
+//}

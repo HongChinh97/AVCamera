@@ -87,7 +87,7 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
     }
     
     
-    
+    //begin
     // MARK: Session Management
     private enum SessionSetupResult {
         case success
@@ -99,7 +99,7 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
     
     private var isSessionRunning = false
     
-    // Communicate with the session and other session objects on this queue.
+    //Giao tiếp với phiên và các đối tượng phiên khác trên hàng đợi này.
     private let sessionQueue = DispatchQueue(label: "session queue")
     
     private var setupResult: SessionSetupResult = .success
@@ -116,8 +116,9 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         session.beginConfiguration()
         
         /*
-         We do not create an AVCaptureMovieFileOutput when setting up the session because
-         Live Photo is not supported when AVCaptureMovieFileOutput is added to the session.
+         
+         Chúng tôi không tạo AVCaptureMovieFileOutput khi thiết lập phiên vì
+         Live Photo không được hỗ trợ khi AVCaptureMovieFileOutput được thêm vào phiên.
          */
         session.sessionPreset = .photo
         
@@ -147,43 +148,77 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
                 self.videoDeviceInput = videoDeviceInput
                     
                     DispatchQueue.main.async {
+                        /*
+                        Gửi luồng video đến hàng đợi chính vì AVCaptureVideoPreviewLayer là lớp hỗ trợ cho PreviewView.
+                        Bạn chỉ có thể thao tác UIView trên luồng chính.
+                        Lưu ý: Ngoại trừ quy tắc trên, không cần thiết phải tuần tự hóa các thay đổi hướng video
+                        trên kết nối AVCaptureVideoPreviewLayer bằng các thao tác phiên khác.
+                        
+                        Sử dụng hướng thanh trạng thái làm hướng video ban đầu. Thay đổi định hướng tiếp theo là
+                        được xử lý bởi CameraViewControll.viewWillTransition (đến: với :).
+                            */
                         let statusBarOrientation = UIApplication.shared.statusBarOrientation
                         var initialVideoOrientation: AVCaptureVideoOrientation = .portrait
                         if statusBarOrientation != .unknown {
-                            if let videoOrientation = AVCaptureVideoOrientation(interfaceOrientation: statusBarOrientation) {
+                            if let videoOrientation = AVCaptureVideoOrientation(rawValue: statusBarOrientation.rawValue) {
                                 initialVideoOrientation = videoOrientation
                             }
                         }
-                        
-                        self.previewView.videoPreviewLayer.connection.v
-                        
-                        
-                        
+                self.previewView.videoPreviewLayer.connection?.videoOrientation = initialVideoOrientation
                         
                     }
-                
+            } else {
+                print("Couldn't add device input to the session")
+                setupResult = .configurationFailed
+                session.commitConfiguration()
+                return
             }
         
-            
-            
-            
-            
+        }catch {
+            print("Couldn't create video device input: \(error)")
+            setupResult = .configurationFailed
+            session.commitConfiguration()
+            return
+        }
+        
+        //add audio input
+        do {
+            let audioDevice = AVCaptureDevice.default(for: .audio)
+            let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice!)
+            if session.canAddInput(audioDeviceInput) {
+                session.canAddInput(audioDeviceInput)
+            } else {
+                print("Could not add audio device input to the session")
+            }
+        } catch {
+            print("Could not create audio device input: \(error)")
+        }
+        
+        //add audio output
+        if session.canAddOutput(photoOutput) {
             
         }
+       
+        
     }
-    
-    // MARK: Device Configuration
+
+    // MARK: Device Configuration(cau hinh thiet bi)
     
     @IBOutlet weak var changeCamera: UIButton!
     
     @IBOutlet weak var cameraUnavailableLabel: UILabel!
     
+    private let videoDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera, .builtInTrueDepthCamera], mediaType: .video, position: .unspecified)
+    
     @IBAction func changeCamera(_ sender: Any) {
     }
     
+    // MARK: Capturing Photos
+    private let photoOutput = AVCapturePhotoOutput()
+    private var inProgressPhotoCaptureDelegate = [Int64: PhotoCaptureProcessor]()
     
-    
-    
+    //Kiểm soát phân đoạn giao diện người dùng
+    @IBOutlet private weak var captureModeControl: UISearchController?
     
 
 }
