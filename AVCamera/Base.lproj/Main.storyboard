@@ -1,24 +1,167 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Camera View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="CameraViewController" customModule="AVCamera" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X2U-eE-ecy" customClass="PreviewView" customModule="AVCamera" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <subviews>
+                                    <segmentedControl opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="UZO-jS-b2g">
+                                        <rect key="frame" x="149" y="448.5" width="77" height="39.5"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="UZO-jS-b2g" secondAttribute="height" multiplier="80:40" id="bU4-wz-dgW"/>
+                                        </constraints>
+                                        <segments>
+                                            <segment title="" image="PhotoSelector"/>
+                                            <segment title="" image="MovieSelector"/>
+                                        </segments>
+                                        <color key="tintColor" red="1" green="0.9501319631324241" blue="0.30629306368355014" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </segmentedControl>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Live" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edx-tc-f9N">
+                                        <rect key="frame" x="172" y="110" width="31" height="21"/>
+                                        <color key="backgroundColor" cocoaTouchSystemColor="tableCellGroupedBackgroundColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" red="1" green="0.95013196310000003" blue="0.30629306369999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="highlightedColor" cocoaTouchSystemColor="viewFlipsideBackgroundColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Camera Unavailable" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZgC-xg-aSn">
+                                        <rect key="frame" x="111.5" y="323" width="152" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cc2-oS-UHP" userLabel="Resume">
+                                        <rect key="frame" x="164.5" y="318.5" width="46" height="30"/>
+                                        <state key="normal" title="Button"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8s7-0r-HDc" userLabel="Record">
+                                        <rect key="frame" x="30" y="557" width="60" height="60"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" image="CaptureVideo">
+                                            <color key="titleShadowColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
+                                        </state>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cjK-V1-wdO" userLabel="Camera">
+                                        <rect key="frame" x="285" y="557" width="60" height="60"/>
+                                        <state key="normal" image="FlipCamera">
+                                            <color key="titleShadowColor" red="0.43529411759999997" green="0.4431372549" blue="0.47450980390000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="changeCamera:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QbP-zd-oIE"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xQ3-7o-kyR">
+                                        <rect key="frame" x="162.5" y="40" width="50" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="Qbi-ys-v45"/>
+                                            <constraint firstAttribute="width" constant="50" id="otL-eP-I7h"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="5"/>
+                                        <state key="normal" title="Depth ON" image="DepthON">
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x5R-gN-Tac">
+                                        <rect key="frame" x="30" y="40" width="50" height="50"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="5"/>
+                                        <state key="normal" title="Live On" image="LivePhotoON">
+                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="titleShadowColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4Ij-na-G3c">
+                                        <rect key="frame" x="295" y="40" width="50" height="50"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="4"/>
+                                        <state key="normal" title="Portrait ON" image="PortraitMatteON">
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QrE-vX-gDw" userLabel="Photo">
+                                        <rect key="frame" x="157.5" y="557" width="60" height="60"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="60" id="If1-C4-2wE"/>
+                                            <constraint firstAttribute="width" constant="60" id="TJy-lN-F9L"/>
+                                        </constraints>
+                                        <state key="normal" image="CapturePhoto">
+                                            <color key="titleShadowColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
+                                        </state>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="UZO-jS-b2g" firstAttribute="centerX" secondItem="X2U-eE-ecy" secondAttribute="centerX" id="038-EY-htp"/>
+                                    <constraint firstItem="QrE-vX-gDw" firstAttribute="top" secondItem="8s7-0r-HDc" secondAttribute="top" id="4Q8-PM-G1c"/>
+                                    <constraint firstItem="x5R-gN-Tac" firstAttribute="leading" secondItem="X2U-eE-ecy" secondAttribute="leading" constant="30" id="4WC-Y2-PkI"/>
+                                    <constraint firstAttribute="bottom" secondItem="QrE-vX-gDw" secondAttribute="bottom" constant="50" id="5fe-9q-IG8"/>
+                                    <constraint firstItem="ZgC-xg-aSn" firstAttribute="centerY" secondItem="X2U-eE-ecy" secondAttribute="centerY" id="6JP-Wz-C1a"/>
+                                    <constraint firstItem="QrE-vX-gDw" firstAttribute="height" secondItem="cjK-V1-wdO" secondAttribute="height" id="6z7-Q3-z0c"/>
+                                    <constraint firstItem="QrE-vX-gDw" firstAttribute="top" secondItem="cjK-V1-wdO" secondAttribute="top" id="9WI-Jl-cd4"/>
+                                    <constraint firstItem="4Ij-na-G3c" firstAttribute="width" secondItem="xQ3-7o-kyR" secondAttribute="width" id="BCt-Gk-y0Z"/>
+                                    <constraint firstItem="4Ij-na-G3c" firstAttribute="top" secondItem="xQ3-7o-kyR" secondAttribute="top" id="EYK-ss-UIE"/>
+                                    <constraint firstAttribute="trailing" secondItem="4Ij-na-G3c" secondAttribute="trailing" constant="30" id="GPm-OM-yR1"/>
+                                    <constraint firstItem="QrE-vX-gDw" firstAttribute="width" secondItem="cjK-V1-wdO" secondAttribute="width" id="ICP-1u-nju"/>
+                                    <constraint firstItem="QrE-vX-gDw" firstAttribute="top" secondItem="UZO-jS-b2g" secondAttribute="bottom" constant="70" id="Jsz-Ql-Y29"/>
+                                    <constraint firstItem="xQ3-7o-kyR" firstAttribute="top" secondItem="X2U-eE-ecy" secondAttribute="top" constant="40" id="PpB-3o-sqS"/>
+                                    <constraint firstItem="QrE-vX-gDw" firstAttribute="centerX" secondItem="X2U-eE-ecy" secondAttribute="centerX" id="QUv-jx-1HF"/>
+                                    <constraint firstItem="Edx-tc-f9N" firstAttribute="top" secondItem="xQ3-7o-kyR" secondAttribute="bottom" constant="20" id="RiH-EN-7rK"/>
+                                    <constraint firstItem="QrE-vX-gDw" firstAttribute="width" secondItem="8s7-0r-HDc" secondAttribute="width" id="VNI-j0-r4c"/>
+                                    <constraint firstAttribute="trailing" secondItem="cjK-V1-wdO" secondAttribute="trailing" constant="30" id="VYf-My-AoS"/>
+                                    <constraint firstItem="QrE-vX-gDw" firstAttribute="height" secondItem="8s7-0r-HDc" secondAttribute="height" id="VcG-8n-It5"/>
+                                    <constraint firstItem="4Ij-na-G3c" firstAttribute="height" secondItem="xQ3-7o-kyR" secondAttribute="height" id="ZQm-qb-nt2"/>
+                                    <constraint firstItem="Cc2-oS-UHP" firstAttribute="centerY" secondItem="X2U-eE-ecy" secondAttribute="centerY" id="f1j-4x-Ltf"/>
+                                    <constraint firstItem="x5R-gN-Tac" firstAttribute="height" secondItem="xQ3-7o-kyR" secondAttribute="height" id="fp9-83-vy8"/>
+                                    <constraint firstItem="x5R-gN-Tac" firstAttribute="width" secondItem="xQ3-7o-kyR" secondAttribute="width" id="gpY-t8-MeV"/>
+                                    <constraint firstItem="ZgC-xg-aSn" firstAttribute="centerX" secondItem="X2U-eE-ecy" secondAttribute="centerX" id="kqq-Hf-FVf"/>
+                                    <constraint firstItem="xQ3-7o-kyR" firstAttribute="centerX" secondItem="X2U-eE-ecy" secondAttribute="centerX" id="sJG-xU-8M1"/>
+                                    <constraint firstItem="x5R-gN-Tac" firstAttribute="top" secondItem="xQ3-7o-kyR" secondAttribute="top" id="sRD-Rz-6SD"/>
+                                    <constraint firstItem="Edx-tc-f9N" firstAttribute="centerX" secondItem="X2U-eE-ecy" secondAttribute="centerX" id="tLE-dS-3Xg"/>
+                                    <constraint firstItem="8s7-0r-HDc" firstAttribute="leading" secondItem="X2U-eE-ecy" secondAttribute="leading" constant="30" id="xoS-CD-gQo"/>
+                                    <constraint firstItem="Cc2-oS-UHP" firstAttribute="centerX" secondItem="X2U-eE-ecy" secondAttribute="centerX" id="ydD-7w-3vo"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="X2U-eE-ecy" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="k8V-f3-BVv"/>
+                            <constraint firstItem="X2U-eE-ecy" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="lfo-LM-OOB"/>
+                            <constraint firstItem="X2U-eE-ecy" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="oCt-G9-oh0"/>
+                            <constraint firstItem="X2U-eE-ecy" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="ufI-c3-ZNN"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="cameraUnavailableLabel" destination="ZgC-xg-aSn" id="QbC-aB-dSO"/>
+                        <outlet property="changeCamera" destination="cjK-V1-wdO" id="cdk-fO-5A5"/>
+                        <outlet property="previewView" destination="X2U-eE-ecy" id="6KV-Pu-Ipk"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="728.79999999999995" y="169.56521739130437"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="CapturePhoto" width="32" height="32"/>
+        <image name="CaptureVideo" width="32" height="32"/>
+        <image name="DepthON" width="24" height="24"/>
+        <image name="FlipCamera" width="32" height="32"/>
+        <image name="LivePhotoON" width="26" height="26"/>
+        <image name="MovieSelector" width="24" height="24"/>
+        <image name="PhotoSelector" width="24" height="24"/>
+        <image name="PortraitMatteON" width="26" height="26"/>
+    </resources>
 </document>
