@@ -10,9 +10,10 @@ import UIKit
 import AVFoundation
 import Photos
 
-class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegate {
+class CameraViewController: UIViewController {
     
-
+    private let session = AVCaptureSession()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -49,31 +50,90 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         default:
             // Người dùng trước đây đã từ chối truy cập.
             setupResult = .notAuthorized
-            /*
-             
-             Thiết lập phiên chụp.
-             Nói chung, không an toàn khi đột biến AVCaptureSession hoặc bất kỳ
-             đầu vào, đầu ra hoặc kết nối từ nhiều luồng cùng một lúc.
-             
-             Đừng thực hiện các tác vụ này trên hàng đợi chính vì
-             AVCaptureSession.startRasty () là một cuộc gọi chặn, có thể
-             mất nhiều thời gian. Chúng tôi gửi thiết lập phiên tới sessionQueue, vì vậy rằng hàng đợi chính không bị chặn, giúp giao diện người dùng phản ứng nhanh.
-             */
-            sessionQueue.async {
-                self.configureSession()
-            }
+        }
+        /*
+         
+         
+         Thiết lập phiên chụp.
+         Nói chung, không an toàn khi đột biến AVCaptureSession hoặc bất kỳ
+         đầu vào, đầu ra hoặc kết nối từ nhiều luồng cùng một lúc.
+         
+         Đừng thực hiện các tác vụ này trên hàng đợi chính vì
+         AVCaptureSession.startRasty () là một cuộc gọi chặn, có thể
+         mất nhiều thời gian. Chúng tôi gửi thiết lập phiên tới sessionQueue, vì vậy rằng hàng đợi chính không bị chặn, giúp giao diện người dùng phản ứng nhanh.
+         */
+        sessionQueue.async {
+            self.configureSession()
         }
         
-
+        
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        sessionQueue.async {
+            switch self.setupResult {
+            case .success:
+                // Only setup observers and start the session running if setup succeeded.
+                //                self.addObservers()
+                self.session.startRunning()
+                self.isSessionRunning = self.session.isRunning
+                
+            case .notAuthorized:
+                DispatchQueue.main.async {
+                    let changePrivacySetting = "AVCam doesn't have permission to use the camera, please change privacy settings"
+                    let message = NSLocalizedString(changePrivacySetting, comment: "Alert message when the user has denied access to the camera")
+                    let alertController = UIAlertController(title: "AVCam", message: message, preferredStyle: .alert)
+                    
+                    alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"),
+                                                            style: .cancel,
+                                                            handler: nil))
+                    
+                    alertController.addAction(UIAlertAction(title: NSLocalizedString("Settings", comment: "Alert button to open Settings"),
+                                                            style: .`default`,
+                                                            handler: { _ in
+                                                                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!,
+                                                                                          options: [:],
+                                                                                          completionHandler: nil)
+                    }))
+                    
+                    self.present(alertController, animated: true, completion: nil)
+                }
+                
+            case .configurationFailed:
+                DispatchQueue.main.async {
+                    let alertMsg = "Alert message when something goes wrong during capture session configuration"
+                    let message = NSLocalizedString("Unable to capture media", comment: alertMsg)
+                    let alertController = UIAlertController(title: "AVCam", message: message, preferredStyle: .alert)
+                    
+                    alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"),
+                                                            style: .cancel,
+                                                            handler: nil))
+                    
+                    self.present(alertController, animated: true, completion: nil)
+                }
+            }
+        }
     }
     
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        if let videoPreviewLayerConnection = previewView.videoPreviewLayer.connection {
+            let deviceOrientation = UIDevice.current.orientation
+            guard let newVideoOrientation = AVCaptureVideoOrientation(rawValue: deviceOrientation.rawValue),
+                deviceOrientation.isPortrait || deviceOrientation.isLandscape else {
+                    return
+            }
+            
+            videoPreviewLayerConnection.videoOrientation = newVideoOrientation
+        }
     }
     
     
@@ -92,7 +152,6 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         case configurationFailed
     }
     
-    private let session = AVCaptureSession()
     
     private var isSessionRunning = false
     
@@ -111,7 +170,6 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         if setupResult != .success {
             return
         }
-        
         //bat dau cau hinh
         session.beginConfiguration()
         
@@ -123,6 +181,18 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         session.sessionPreset = .photo
         
         // Add video input.
+        addVideoInput()
+        
+        //add audio input
+        addAudioInput()
+        
+        //add audio output
+        addPhotoOutput()
+        session.commitConfiguration()
+        
+    }
+    
+    func addVideoInput() {
         do {
             var defaultVideoDevice: AVCaptureDevice?
             
@@ -147,42 +217,43 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
             if session.canAddInput(videoDeviceInput) {
                 session.addInput(videoDeviceInput)
                 self.videoDeviceInput = videoDeviceInput
-                    
-                    DispatchQueue.main.async {
-                        /*
-                        Gửi luồng video đến hàng đợi chính vì AVCaptureVideoPreviewLayer là lớp hỗ trợ cho PreviewView.
-                        Bạn chỉ có thể thao tác UIView trên luồng chính.
-                        Lưu ý: Ngoại trừ quy tắc trên, không cần thiết phải tuần tự hóa các thay đổi hướng video
-                        trên kết nối AVCaptureVideoPreviewLayer bằng các thao tác phiên khác.
-                        
-                        Sử dụng hướng thanh trạng thái làm hướng video ban đầu. Thay đổi định hướng tiếp theo là
-                        được xử lý bởi CameraViewControll.viewWillTransition (đến: với :).
-                            */
-                        let statusBarOrientation = UIApplication.shared.statusBarOrientation
-                        var initialVideoOrientation: AVCaptureVideoOrientation = .portrait
-                        if statusBarOrientation != .unknown {
-                            if let videoOrientation = AVCaptureVideoOrientation(rawValue: statusBarOrientation.rawValue) {
-                                initialVideoOrientation = videoOrientation
-                            }
+                
+                DispatchQueue.main.async {
+                    /*
+                     Gửi luồng video đến hàng đợi chính vì AVCaptureVideoPreviewLayer là lớp hỗ trợ cho PreviewView.
+                     Bạn chỉ có thể thao tác UIView trên luồng chính.
+                     Lưu ý: Ngoại trừ quy tắc trên, không cần thiết phải tuần tự hóa các thay đổi hướng video
+                     trên kết nối AVCaptureVideoPreviewLayer bằng các thao tác phiên khác.
+                     
+                     Sử dụng hướng thanh trạng thái làm hướng video ban đầu. Thay đổi định hướng tiếp theo là
+                     được xử lý bởi CameraViewControll.viewWillTransition (đến: với :).
+                     */
+                    let statusBarOrientation = UIApplication.shared.statusBarOrientation
+                    var initialVideoOrientation: AVCaptureVideoOrientation = .portrait
+                    if statusBarOrientation != .unknown {
+                        if let videoOrientation = AVCaptureVideoOrientation(rawValue: statusBarOrientation.rawValue) {
+                            initialVideoOrientation = videoOrientation
                         }
-                self.previewView.videoPreviewLayer.connection?.videoOrientation = initialVideoOrientation
-                        
                     }
+                    self.previewView.videoPreviewLayer.connection?.videoOrientation = initialVideoOrientation
+                    
+                }
             } else {
                 print("Couldn't add device input to the session")
                 setupResult = .configurationFailed
                 session.commitConfiguration()
                 return
             }
-        
+            
         }catch {
             print("Couldn't create video device input: \(error)")
             setupResult = .configurationFailed
             session.commitConfiguration()
             return
         }
-        
-        //add audio input
+    }
+    
+    func addAudioInput() {
         do {
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice!)
@@ -195,152 +266,43 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         } catch {
             print("Could not create audio device input: \(error)")
         }
-        
-        //add audio output
+    }
+    
+    func addPhotoOutput() {
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
             
             photoOutput.isHighResolutionCaptureEnabled = true
-            photoOutput.isLivePhotoCaptureEnabled = photoOutput.isLivePhotoCaptureSupported
-            photoOutput.isDepthDataDeliveryEnabled = photoOutput.isLivePhotoCaptureSupported
             photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
-            livePho
+        } else {
+            print("Could not add photo output to the session")
+            setupResult = .configurationFailed
+            session.commitConfiguration()
+            return
         }
-       
-        
     }
-
-    // MARK: Device Configuration(cau hinh thiet bi)
     
-    @IBOutlet weak var changeCamera: UIButton!
+   
     
-    @IBOutlet weak var cameraUnavailableLabel: UILabel!
-    
-    private let videoDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera, .builtInTrueDepthCamera], mediaType: .video, position: .unspecified)
-    
-    @IBAction func changeCamera(_ sender: Any) {
+    private enum CaptureMode: Int {
+        case photo = 0
+        case movie = 1
     }
+    
+    @IBOutlet weak var captureModeControl: UISegmentedControl!
+    
+    // - Tag: EnableDisableModes
+   
+    
+    
+    
+    
+    
+    
     
     // MARK: Capturing Photos
     private let photoOutput = AVCapturePhotoOutput()
-    private var inProgressPhotoCaptureDelegate = [Int64: PhotoCaptureProcessor]()
-    
-    //Kiểm soát phân đoạn giao diện người dùng
-    @IBOutlet private weak var captureModeControl: UISearchController?
-    
-    //MARK: Recording Movies
-    private var movieFileOutput: AVCaptureMovieFileOutput?
-    private var backgroundRecordingID: UIBackgroundTaskIdentifier?
-    
-    @IBOutlet weak var recordButton: UIButton!
-    
-    @IBOutlet weak var resumeButton: UIButton!
-    
-    /// Tag: DidStartRecording
-   
-    func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
-        //Kích hoạt nút Record để cho phép người dùng dừng ghi.
-        DispatchQueue.main.async {
-            self.recordButton.isEnabled = true
-            self.recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
-    }
-        
-    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-        /*
-         Vì chúng tôi sử dụng một đường dẫn tệp duy nhất cho mỗi bản ghi, một bản ghi mới sẽ không ghi đè lên bản ghi giữa lưu.
-         */
-        func cleanup() {
-            let path = outputFileURL.path
-            if FileManager.default.fileExists(atPath: path) {
-                do {
-                    try FileManager.default.removeItem(atPath: path)
-                } catch {
-                    print("Could not remove file at url: \(outputFileURL)")
-                }
-            }
-            
-            if let currentBackgroundRecordingID = backgroundRecordingID {
-                backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
-                if currentBackgroundRecordingID != UIBackgroundTaskIdentifier.invalid {
-                    UIApplication.shared.endBackgroundTask(currentBackgroundRecordingID)
-                }
-            }
-            
-        }
-        
-        var success = true
-        if error != nil {
-            print("Move file finishing error: \(String(describing: error))")
-            success = (((error! as NSError).userInfo[AVErrorRecordingSuccessfullyFinishedKey] as AnyObject).boolValue)!
-        }
-        
-        if success {
-            //Kiểm tra trạng thái ủy quyền.
-            PHPhotoLibrary.requestAuthorization {status in
-                if status == .authorized {
-                    //Lưu tập tin phim vào thư viện ảnh và dọn dẹp.
-                    PHPhotoLibrary.shared().performChanges({
-                        let options = PHAssetResourceCreationOptions()
-                        options.shouldMoveFile = true
-                        let creationRequest = PHAssetCreationRequest.forAsset()
-                        creationRequest.addResource(with: .video, fileURL : outputFileURL, options: options)
-                        
-                    }, completionHandler: { success, error in
-                        if !success {
-                            print("AVCam couldn't save the movie to your photo library: \(String(describing: error))")
-                        }
-                        cleanup()
-                    })
-                } else {
-                    cleanup()
-                }
-            }
-        } else {
-            cleanup()
-        }
-        
-        //Kích hoạt các nút Camera và Record để cho phép người dùng chuyển đổi camera và bắt đầu ghi âm khác.
-        DispatchQueue.main.async {
-//            self.videoDeviceDiscoverySession.ui
-            self.recordButton.isEnabled = true
-            self.recordButton.setImage(#imageLiteral(resourceName: "CaptureVideo"), for: [])
-            
-        }
-    }
-    }
-    
-    //thiet lap trang thai on off cho button LivePhotoMode va DepthDataDeliveryMode
-    private enum LivePhotoMode {
-        case on
-        case off
-    }
-    
-    private enum DepthDataDeliveryMode {
-        case on
-        case off
-    }
-    
-    private var livePhotoMode: LivePhotoMode = .off
-    @IBOutlet private weak var livePhotoModeButton: UIButton!
-    
-    @IBAction private func toggleLivePhotoMode(_ livePhotoModeButton: UIButton) {
-        sessionQueue.async {
-            self.livePhotoMode = (self.livePhotoMode == .on) ? .off : .on
-            let livePhotoMode = self.livePhotoMode
-            
-            DispatchQueue.main.async {
-                if livePhotoMode == .on {
-                    self.livePhotoModeButton.setImage(#imageLiteral(resourceName: "LivePhotoON"), for: [])
-                } else {
-                    self.livePhotoModeButton.setImage(#imageLiteral(resourceName: "LivePhotoOFF"), for: [])
-                }
-            }
-        }
-    }
-    
-    
-    private var depthDataDeliveryMode: DepthDataDeliveryMode = .off
-
-    
     
 }
+
+
