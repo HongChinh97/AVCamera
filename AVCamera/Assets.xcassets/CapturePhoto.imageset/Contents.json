@@ -2,11 +2,11 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "icons8-integrated_webcam.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
+      "filename" : "CapturePhoto@2x 14-43-12-486.png",
       "scale" : "2x"
     },
     {

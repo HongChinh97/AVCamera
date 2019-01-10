@@ -2,11 +2,11 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "icons8-happy.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
+      "filename" : "DepthON@2x.png",
       "scale" : "2x"
     },
     {

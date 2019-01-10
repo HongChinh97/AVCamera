@@ -8,11 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		B2D1076A21D7093900333539 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1076921D7093900333539 /* AppDelegate.swift */; };
-		B2D1076C21D7093900333539 /* PhotoCaptureProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1076B21D7093900333539 /* PhotoCaptureProcessor.swift */; };
+		B2D1076C21D7093900333539 /* PhotoCaptureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1076B21D7093900333539 /* PhotoCaptureDelegate.swift */; };
 		B2D1076F21D7093900333539 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B2D1076D21D7093900333539 /* Main.storyboard */; };
 		B2D1077121D7093A00333539 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B2D1077021D7093A00333539 /* Assets.xcassets */; };
 		B2D1077421D7093A00333539 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B2D1077221D7093A00333539 /* LaunchScreen.storyboard */; };
-		B2D1077D21D7103E00333539 /* PhotoCaptureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1077C21D7103E00333539 /* PhotoCaptureDelegate.swift */; };
 		B2D1077F21D711D400333539 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1077E21D711D400333539 /* PreviewView.swift */; };
 		B2D1078121D7132C00333539 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D1078021D7132C00333539 /* CameraViewController.swift */; };
 /* End PBXBuildFile section */
@@ -20,12 +19,11 @@
 /* Begin PBXFileReference section */
 		B2D1076621D7093900333539 /* AVCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2D1076921D7093900333539 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B2D1076B21D7093900333539 /* PhotoCaptureProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureProcessor.swift; sourceTree = "<group>"; };
+		B2D1076B21D7093900333539 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
 		B2D1076E21D7093900333539 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B2D1077021D7093A00333539 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B2D1077321D7093A00333539 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B2D1077521D7093A00333539 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B2D1077C21D7103E00333539 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
 		B2D1077E21D711D400333539 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
 		B2D1078021D7132C00333539 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -62,8 +60,7 @@
 			children = (
 				B2D1076921D7093900333539 /* AppDelegate.swift */,
 				B2D1077E21D711D400333539 /* PreviewView.swift */,
-				B2D1076B21D7093900333539 /* PhotoCaptureProcessor.swift */,
-				B2D1077C21D7103E00333539 /* PhotoCaptureDelegate.swift */,
+				B2D1076B21D7093900333539 /* PhotoCaptureDelegate.swift */,
 				B2D1078021D7132C00333539 /* CameraViewController.swift */,
 				B2D1076D21D7093900333539 /* Main.storyboard */,
 				B2D1077021D7093A00333539 /* Assets.xcassets */,
@@ -144,10 +141,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2D1077D21D7103E00333539 /* PhotoCaptureDelegate.swift in Sources */,
 				B2D1078121D7132C00333539 /* CameraViewController.swift in Sources */,
 				B2D1077F21D711D400333539 /* PreviewView.swift in Sources */,
-				B2D1076C21D7093900333539 /* PhotoCaptureProcessor.swift in Sources */,
+				B2D1076C21D7093900333539 /* PhotoCaptureDelegate.swift in Sources */,
 				B2D1076A21D7093900333539 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

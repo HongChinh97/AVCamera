@@ -11,12 +11,8 @@ import AVFoundation
 import Photos
 
 class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegate {
-    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-        <#code#>
-    }
     
 
-    @IBOutlet weak var previewView: PreviewView!
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -24,22 +20,23 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         // Set up the video preview view.
         previewView.session = session
         /*
-         Check video authorization status. Video access is required and audio
-         access is optional. If the user denies audio access, AVCam won't
-         record audio during movie recording.
+         
+         Kiểm tra trạng thái ủy quyền video. Yêu cầu truy cập video và âm thanh
+         truy cập là tùy chọn. Nếu người dùng từ chối truy cập âm thanh, AVCam sẽ không ghi lại âm thanh trong khi quay phim.
          */
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            // The user has previously granted access to the camera.
+            // Người dùng trước đây đã cấp quyền truy cập vào máy ảnh.
             break
         case .notDetermined:
             /*
-             The user has not yet been presented with the option to grant
-             video access. We suspend the session queue to delay session
-             setup until the access request has completed.
              
-             Note that audio access will be implicitly requested when we
-             create an AVCaptureDeviceInput for audio during session setup.
+             Người dùng chưa được cung cấp tùy chọn cấp
+             truy cập video. Chúng tôi tạm dừng hàng đợi phiên để trì hoãn phiên
+             thiết lập cho đến khi yêu cầu truy cập đã hoàn thành.
+             
+             Lưu ý rằng quyền truy cập âm thanh sẽ được yêu cầu ngầm khi chúng tôi
+             tạo AVCaptureDeviceInput cho âm thanh trong khi thiết lập phiên.
              */
             //Đình chỉ việc gọi các đối tượng
             sessionQueue.suspend()
@@ -50,17 +47,17 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
             })
             
         default:
-            // The user has previously denied access.
+            // Người dùng trước đây đã từ chối truy cập.
             setupResult = .notAuthorized
             /*
-             Setup the capture session.
-             In general, it is not safe to mutate an AVCaptureSession or any of its
-             inputs, outputs, or connections from multiple threads at the same time.
              
-             Don't perform these tasks on the main queue because
-             AVCaptureSession.startRunning() is a blocking call, which can
-             take a long time. We dispatch session setup to the sessionQueue, so
-             that the main queue isn't blocked, which keeps the UI responsive.
+             Thiết lập phiên chụp.
+             Nói chung, không an toàn khi đột biến AVCaptureSession hoặc bất kỳ
+             đầu vào, đầu ra hoặc kết nối từ nhiều luồng cùng một lúc.
+             
+             Đừng thực hiện các tác vụ này trên hàng đợi chính vì
+             AVCaptureSession.startRasty () là một cuộc gọi chặn, có thể
+             mất nhiều thời gian. Chúng tôi gửi thiết lập phiên tới sessionQueue, vì vậy rằng hàng đợi chính không bị chặn, giúp giao diện người dùng phản ứng nhanh.
              */
             sessionQueue.async {
                 self.configureSession()
@@ -103,7 +100,10 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
     private let sessionQueue = DispatchQueue(label: "session queue")
     
     private var setupResult: SessionSetupResult = .success
+    
     @objc dynamic var videoDeviceInput: AVCaptureDeviceInput!
+    
+    @IBOutlet weak var previewView: PreviewView!
     
     // Call this on the session queue.
     /// - Tag: ConfigureSession
@@ -116,15 +116,16 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         session.beginConfiguration()
         
         /*
-         
          Chúng tôi không tạo AVCaptureMovieFileOutput khi thiết lập phiên vì
-         Live Photo không được hỗ trợ khi AVCaptureMovieFileOutput được thêm vào phiên.
+         Live Photo không được hỗ trợ khi AVCaptureMovieFileOutput được thêm vào
+         phiên.
          */
         session.sessionPreset = .photo
         
         // Add video input.
         do {
             var defaultVideoDevice: AVCaptureDevice?
+            
             //thiết bị camera kép
             if let dualCameraDevice = AVCaptureDevice.default(.builtInDualCamera, for: .video, position: .back) {
                 defaultVideoDevice = dualCameraDevice
@@ -185,6 +186,7 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         do {
             let audioDevice = AVCaptureDevice.default(for: .audio)
             let audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice!)
+            
             if session.canAddInput(audioDeviceInput) {
                 session.canAddInput(audioDeviceInput)
             } else {
@@ -196,7 +198,13 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
         
         //add audio output
         if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
             
+            photoOutput.isHighResolutionCaptureEnabled = true
+            photoOutput.isLivePhotoCaptureEnabled = photoOutput.isLivePhotoCaptureSupported
+            photoOutput.isDepthDataDeliveryEnabled = photoOutput.isLivePhotoCaptureSupported
+            photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
+            livePho
         }
        
         
@@ -220,5 +228,119 @@ class CameraViewController: UIViewController,AVCaptureFileOutputRecordingDelegat
     //Kiểm soát phân đoạn giao diện người dùng
     @IBOutlet private weak var captureModeControl: UISearchController?
     
+    //MARK: Recording Movies
+    private var movieFileOutput: AVCaptureMovieFileOutput?
+    private var backgroundRecordingID: UIBackgroundTaskIdentifier?
+    
+    @IBOutlet weak var recordButton: UIButton!
+    
+    @IBOutlet weak var resumeButton: UIButton!
+    
+    /// Tag: DidStartRecording
+   
+    func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
+        //Kích hoạt nút Record để cho phép người dùng dừng ghi.
+        DispatchQueue.main.async {
+            self.recordButton.isEnabled = true
+            self.recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
+    }
+        
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        /*
+         Vì chúng tôi sử dụng một đường dẫn tệp duy nhất cho mỗi bản ghi, một bản ghi mới sẽ không ghi đè lên bản ghi giữa lưu.
+         */
+        func cleanup() {
+            let path = outputFileURL.path
+            if FileManager.default.fileExists(atPath: path) {
+                do {
+                    try FileManager.default.removeItem(atPath: path)
+                } catch {
+                    print("Could not remove file at url: \(outputFileURL)")
+                }
+            }
+            
+            if let currentBackgroundRecordingID = backgroundRecordingID {
+                backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
+                if currentBackgroundRecordingID != UIBackgroundTaskIdentifier.invalid {
+                    UIApplication.shared.endBackgroundTask(currentBackgroundRecordingID)
+                }
+            }
+            
+        }
+        
+        var success = true
+        if error != nil {
+            print("Move file finishing error: \(String(describing: error))")
+            success = (((error! as NSError).userInfo[AVErrorRecordingSuccessfullyFinishedKey] as AnyObject).boolValue)!
+        }
+        
+        if success {
+            //Kiểm tra trạng thái ủy quyền.
+            PHPhotoLibrary.requestAuthorization {status in
+                if status == .authorized {
+                    //Lưu tập tin phim vào thư viện ảnh và dọn dẹp.
+                    PHPhotoLibrary.shared().performChanges({
+                        let options = PHAssetResourceCreationOptions()
+                        options.shouldMoveFile = true
+                        let creationRequest = PHAssetCreationRequest.forAsset()
+                        creationRequest.addResource(with: .video, fileURL : outputFileURL, options: options)
+                        
+                    }, completionHandler: { success, error in
+                        if !success {
+                            print("AVCam couldn't save the movie to your photo library: \(String(describing: error))")
+                        }
+                        cleanup()
+                    })
+                } else {
+                    cleanup()
+                }
+            }
+        } else {
+            cleanup()
+        }
+        
+        //Kích hoạt các nút Camera và Record để cho phép người dùng chuyển đổi camera và bắt đầu ghi âm khác.
+        DispatchQueue.main.async {
+//            self.videoDeviceDiscoverySession.ui
+            self.recordButton.isEnabled = true
+            self.recordButton.setImage(#imageLiteral(resourceName: "CaptureVideo"), for: [])
+            
+        }
+    }
+    }
+    
+    //thiet lap trang thai on off cho button LivePhotoMode va DepthDataDeliveryMode
+    private enum LivePhotoMode {
+        case on
+        case off
+    }
+    
+    private enum DepthDataDeliveryMode {
+        case on
+        case off
+    }
+    
+    private var livePhotoMode: LivePhotoMode = .off
+    @IBOutlet private weak var livePhotoModeButton: UIButton!
+    
+    @IBAction private func toggleLivePhotoMode(_ livePhotoModeButton: UIButton) {
+        sessionQueue.async {
+            self.livePhotoMode = (self.livePhotoMode == .on) ? .off : .on
+            let livePhotoMode = self.livePhotoMode
+            
+            DispatchQueue.main.async {
+                if livePhotoMode == .on {
+                    self.livePhotoModeButton.setImage(#imageLiteral(resourceName: "LivePhotoON"), for: [])
+                } else {
+                    self.livePhotoModeButton.setImage(#imageLiteral(resourceName: "LivePhotoOFF"), for: [])
+                }
+            }
+        }
+    }
+    
+    
+    private var depthDataDeliveryMode: DepthDataDeliveryMode = .off
 
+    
+    
 }

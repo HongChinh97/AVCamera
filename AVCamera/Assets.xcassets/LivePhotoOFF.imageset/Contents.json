@@ -2,11 +2,11 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "icons8-disapprove.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
+      "filename" : "LivePhotoOFF@2x.png",
       "scale" : "2x"
     },
     {

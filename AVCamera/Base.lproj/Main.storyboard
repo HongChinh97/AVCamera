@@ -21,7 +21,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <segmentedControl opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="UZO-jS-b2g">
-                                        <rect key="frame" x="149" y="448.5" width="77" height="39.5"/>
+                                        <rect key="frame" x="101" y="400.5" width="173" height="87.5"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="UZO-jS-b2g" secondAttribute="height" multiplier="80:40" id="bU4-wz-dgW"/>
                                         </constraints>
@@ -82,6 +82,9 @@
                                             <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <color key="titleShadowColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
+                                        <connections>
+                                            <action selector="toggleLivePhotoMode:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hRm-7R-tc3"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4Ij-na-G3c">
                                         <rect key="frame" x="295" y="40" width="50" height="50"/>
@@ -146,7 +149,10 @@
                     <connections>
                         <outlet property="cameraUnavailableLabel" destination="ZgC-xg-aSn" id="QbC-aB-dSO"/>
                         <outlet property="changeCamera" destination="cjK-V1-wdO" id="cdk-fO-5A5"/>
+                        <outlet property="livePhotoModeButton" destination="x5R-gN-Tac" id="5UA-6g-0J6"/>
                         <outlet property="previewView" destination="X2U-eE-ecy" id="6KV-Pu-Ipk"/>
+                        <outlet property="recordButton" destination="8s7-0r-HDc" id="GNI-0c-xGO"/>
+                        <outlet property="resumeButton" destination="Cc2-oS-UHP" id="LGK-3O-Sio"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -155,13 +161,13 @@
         </scene>
     </scenes>
     <resources>
-        <image name="CapturePhoto" width="32" height="32"/>
-        <image name="CaptureVideo" width="32" height="32"/>
-        <image name="DepthON" width="24" height="24"/>
-        <image name="FlipCamera" width="32" height="32"/>
-        <image name="LivePhotoON" width="26" height="26"/>
-        <image name="MovieSelector" width="24" height="24"/>
-        <image name="PhotoSelector" width="24" height="24"/>
-        <image name="PortraitMatteON" width="26" height="26"/>
+        <image name="CapturePhoto" width="150" height="150"/>
+        <image name="CaptureVideo" width="150" height="150"/>
+        <image name="DepthON" width="150" height="150"/>
+        <image name="FlipCamera" width="150" height="150"/>
+        <image name="LivePhotoON" width="150" height="150"/>
+        <image name="MovieSelector" width="72" height="72"/>
+        <image name="PhotoSelector" width="72" height="72"/>
+        <image name="PortraitMatteON" width="150" height="150"/>
     </resources>
 </document>
