@@ -12,6 +12,19 @@ import Photos
 
 class CameraViewController: UIViewController {
     
+    @IBOutlet private weak var cameraButton: UIButton!
+    
+    @IBOutlet private weak var cameraUnavailableLabel: UILabel!
+    @IBOutlet private weak var previewView: PreviewView!
+    @IBOutlet private weak var captureModeControl: UISegmentedControl!
+    @IBOutlet private weak var photoButton: UIButton!
+    @IBOutlet private weak var livePhotoModeButton: UIButton!
+    @IBOutlet private weak var depthDataDeliveryButton: UIButton!
+    @IBOutlet private weak var portraitEffectsMatteDeliveryButton: UIButton!
+    @IBOutlet var capturingLivePhotoLabel: UILabel!
+    @IBOutlet private weak var recordButton: UIButton!
+    @IBOutlet private weak var resumeButton: UIButton!
+
     private let session = AVCaptureSession()
     
     override func viewDidLoad() {
@@ -162,7 +175,6 @@ class CameraViewController: UIViewController {
     
     @objc dynamic var videoDeviceInput: AVCaptureDeviceInput!
     
-    @IBOutlet weak var previewView: PreviewView!
     
     // Call this on the session queue.
     /// - Tag: ConfigureSession
@@ -288,9 +300,6 @@ class CameraViewController: UIViewController {
         case photo = 0
         case movie = 1
     }
-    
-    @IBOutlet weak var captureModeControl: UISegmentedControl!
-    
   
     
     // MARK: Capturing Photos
@@ -303,6 +312,12 @@ class CameraViewController: UIViewController {
     private var movieFileOutput: AVCaptureMovieFileOutput?
 
     @IBAction func changeCamera(_ sender: UIButton) {
+        cameraButton.isEnabled = false
+        recordButton.isEnabled = false
+        photoButton.isEnabled = false
+        livePhotoModeButton.isEnabled = false
+        captureModeControl.isEnabled = false
+        
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
             let currentPosition = currentVideoDevice.position
@@ -319,27 +334,32 @@ class CameraViewController: UIViewController {
                 preferredPosition = .front
                 preferredDeviceType = .builtInTrueDepthCamera
             }
-            
             let devices = self.videoDeviceDiscoverySession.devices
             var newVideoDevice: AVCaptureDevice? = nil
-            if let device = devices.first(where: { $0.position == preferredPosition && $0.deviceType == preferredDeviceType}) {
+            
+            // First, seek a device with both the preferred position and device type. Otherwise, seek a device with only the preferred position.
+            if let device = devices.first(where: { $0.position == preferredPosition && $0.deviceType == preferredDeviceType }) {
                 newVideoDevice = device
-            } else if let device = devices.first(where: { $0.position == preferredPosition}) {
+            } else if let device = devices.first(where: { $0.position == preferredPosition }) {
                 newVideoDevice = device
             }
             
             if let videoDevice = newVideoDevice {
                 do {
                     let videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
+                    
                     self.session.beginConfiguration()
+                    
+                    // Remove the existing device input first, since the system doesn't support simultaneous use of the rear and front cameras.
                     self.session.removeInput(self.videoDeviceInput)
+                    
                     if self.session.canAddInput(videoDeviceInput) {
                         NotificationCenter.default.removeObserver(self, name: .AVCaptureDeviceSubjectAreaDidChange, object: currentVideoDevice)
                         NotificationCenter.default.addObserver(self, selector: #selector(self.subjectAreaDidChange), name: .AVCaptureDeviceSubjectAreaDidChange, object: videoDeviceInput.device)
                         
                         self.session.addInput(videoDeviceInput)
                         self.videoDeviceInput = videoDeviceInput
-                    }else {
+                    } else {
                         self.session.addInput(self.videoDeviceInput)
                     }
                     if let connection = self.movieFileOutput?.connection(with: .video) {
@@ -347,16 +367,32 @@ class CameraViewController: UIViewController {
                             connection.preferredVideoStabilizationMode = .auto
                         }
                     }
+                    
+                    /*
+                     Set Live Photo capture and depth data delivery if it is supported. When changing cameras, the
+                     `livePhotoCaptureEnabled and depthDataDeliveryEnabled` properties of the AVCapturePhotoOutput gets set to NO when
+                     a video device is disconnected from the session. After the new video device is
+                     added to the session, re-enable them on the AVCapturePhotoOutput if it is supported.
+                     */
                     self.photoOutput.isLivePhotoCaptureEnabled = self.photoOutput.isLivePhotoCaptureSupported
                     self.photoOutput.isDepthDataDeliveryEnabled = self.photoOutput.isDepthDataDeliverySupported
                     self.photoOutput.isPortraitEffectsMatteDeliveryEnabled = self.photoOutput.isPortraitEffectsMatteDeliverySupported
                     
                     self.session.commitConfiguration()
                 } catch {
-                    print("Error occurred while creating video device input \(error)")
+                    print("Error occurred while creating video device input: \(error)")
                 }
-                
-               
+                DispatchQueue.main.async {
+                    self.cameraButton.isEnabled = true
+                    self.recordButton.isEnabled = self.movieFileOutput != nil
+                    self.photoButton.isEnabled = true
+                    self.livePhotoModeButton.isEnabled = true
+                    self.captureModeControl.isEnabled = true
+                    self.depthDataDeliveryButton.isEnabled = self.photoOutput.isDepthDataDeliveryEnabled
+                    self.depthDataDeliveryButton.isHidden = !self.photoOutput.isDepthDataDeliverySupported
+                    self.portraitEffectsMatteDeliveryButton.isEnabled = self.photoOutput.isPortraitEffectsMatteDeliveryEnabled
+                    self.portraitEffectsMatteDeliveryButton.isHidden = !self.photoOutput.isPortraitEffectsMatteDeliverySupported
+                }
             }
             
         }
