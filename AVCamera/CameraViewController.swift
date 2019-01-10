@@ -291,17 +291,114 @@ class CameraViewController: UIViewController {
     
     @IBOutlet weak var captureModeControl: UISegmentedControl!
     
-    // - Tag: EnableDisableModes
-   
-    
-    
-    
-    
-    
-    
+  
     
     // MARK: Capturing Photos
     private let photoOutput = AVCapturePhotoOutput()
+    
+    ///Tag: ChangeCamera
+    
+    private let videoDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera, .builtInTrueDepthCamera],
+                                                                               mediaType: .video, position: .unspecified)
+    private var movieFileOutput: AVCaptureMovieFileOutput?
+
+    @IBAction func changeCamera(_ sender: UIButton) {
+        sessionQueue.async {
+            let currentVideoDevice = self.videoDeviceInput.device
+            let currentPosition = currentVideoDevice.position
+            
+            let preferredPosition: AVCaptureDevice.Position
+            let preferredDeviceType: AVCaptureDevice.DeviceType
+            
+            switch currentPosition {
+            case .unspecified, .front:
+                preferredPosition = .back
+                preferredDeviceType = .builtInDualCamera
+                
+            case .back:
+                preferredPosition = .front
+                preferredDeviceType = .builtInTrueDepthCamera
+            }
+            
+            let devices = self.videoDeviceDiscoverySession.devices
+            var newVideoDevice: AVCaptureDevice? = nil
+            if let device = devices.first(where: { $0.position == preferredPosition && $0.deviceType == preferredDeviceType}) {
+                newVideoDevice = device
+            } else if let device = devices.first(where: { $0.position == preferredPosition}) {
+                newVideoDevice = device
+            }
+            
+            if let videoDevice = newVideoDevice {
+                do {
+                    let videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
+                    self.session.beginConfiguration()
+                    self.session.removeInput(self.videoDeviceInput)
+                    if self.session.canAddInput(videoDeviceInput) {
+                        NotificationCenter.default.removeObserver(self, name: .AVCaptureDeviceSubjectAreaDidChange, object: currentVideoDevice)
+                        NotificationCenter.default.addObserver(self, selector: #selector(self.subjectAreaDidChange), name: .AVCaptureDeviceSubjectAreaDidChange, object: videoDeviceInput.device)
+                        
+                        self.session.addInput(videoDeviceInput)
+                        self.videoDeviceInput = videoDeviceInput
+                    }else {
+                        self.session.addInput(self.videoDeviceInput)
+                    }
+                    if let connection = self.movieFileOutput?.connection(with: .video) {
+                        if connection.isVideoStabilizationSupported {
+                            connection.preferredVideoStabilizationMode = .auto
+                        }
+                    }
+                    self.photoOutput.isLivePhotoCaptureEnabled = self.photoOutput.isLivePhotoCaptureSupported
+                    self.photoOutput.isDepthDataDeliveryEnabled = self.photoOutput.isDepthDataDeliverySupported
+                    self.photoOutput.isPortraitEffectsMatteDeliveryEnabled = self.photoOutput.isPortraitEffectsMatteDeliverySupported
+                    
+                    self.session.commitConfiguration()
+                } catch {
+                    print("Error occurred while creating video device input \(error)")
+                }
+                
+               
+            }
+            
+        }
+    }
+    
+    @objc
+    func subjectAreaDidChange(notification: NSNotification) {
+        let devicePoint = CGPoint(x: 0.5, y: 0.5)
+        focus(with: .continuousAutoFocus, exposureMode: .continuousAutoExposure, at: devicePoint, monitorSubjectAreaChange: false)
+    }
+    
+    private func focus(with focusMode: AVCaptureDevice.FocusMode,
+                       exposureMode: AVCaptureDevice.ExposureMode,
+                       at devicePoint: CGPoint,
+                       monitorSubjectAreaChange: Bool) {
+        
+        sessionQueue.async {
+            let device = self.videoDeviceInput.device
+            do {
+                try device.lockForConfiguration()
+                
+                /*
+                 Setting (focus/exposure)PointOfInterest alone does not initiate a (focus/exposure) operation.
+                 Call set(Focus/Exposure)Mode() to apply the new point of interest.
+                 */
+                if device.isFocusPointOfInterestSupported && device.isFocusModeSupported(focusMode) {
+                    device.focusPointOfInterest = devicePoint
+                    device.focusMode = focusMode
+                }
+                
+                if device.isExposurePointOfInterestSupported && device.isExposureModeSupported(exposureMode) {
+                    device.exposurePointOfInterest = devicePoint
+                    device.exposureMode = exposureMode
+                }
+                
+                device.isSubjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange
+                device.unlockForConfiguration()
+            } catch {
+                print("Could not lock device for configuration: \(error)")
+            }
+        }
+    }
     
 }
 

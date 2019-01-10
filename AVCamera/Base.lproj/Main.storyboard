@@ -35,10 +35,30 @@
                                             <action selector="toggleCaptureMode:" destination="BYZ-38-t0r" eventType="valueChanged" id="Lg5-xk-P1s"/>
                                         </connections>
                                     </segmentedControl>
+                                    <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="H9I-CL-bpv" userLabel="Camera">
+                                        <rect key="frame" x="285" y="577" width="50" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="H9I-CL-bpv" secondAttribute="height" multiplier="1:1" id="5a0-Hh-uhW"/>
+                                            <constraint firstAttribute="width" constant="50" id="Drq-gR-pKM"/>
+                                        </constraints>
+                                        <state key="normal" image="FlipCamera">
+                                            <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="4"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="changeCamera:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7PO-eM-1tc"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="UZO-jS-b2g" firstAttribute="centerX" secondItem="X2U-eE-ecy" secondAttribute="centerX" id="038-EY-htp"/>
+                                    <constraint firstAttribute="bottom" secondItem="H9I-CL-bpv" secondAttribute="bottom" constant="40" id="GuM-KY-vLD"/>
+                                    <constraint firstAttribute="trailing" secondItem="H9I-CL-bpv" secondAttribute="trailing" constant="40" id="ang-p5-mWq"/>
                                     <constraint firstAttribute="bottom" secondItem="UZO-jS-b2g" secondAttribute="bottom" constant="100" id="lYr-cv-7BX"/>
                                 </constraints>
                             </view>
@@ -62,6 +82,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="FlipCamera" width="150" height="150"/>
         <image name="MovieSelector" width="72" height="72"/>
         <image name="PhotoSelector" width="72" height="72"/>
     </resources>
