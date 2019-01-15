@@ -12,12 +12,12 @@
         <!--Camera View Controller-->
         <scene sceneID="072-II-yDG">
             <objects>
-                <viewController id="kwP-dS-e2h" userLabel="Camera View Controller" customClass="CameraViewController" customModule="AVCam" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="kwP-dS-e2h" userLabel="Camera View Controller" customClass="CameraViewController" customModule="AVCamera" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="oqM-At-c9g">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3jU-Cd-blL" userLabel="Preview" customClass="PreviewView" customModule="AVCam" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3jU-Cd-blL" userLabel="Preview" customClass="PreviewView" customModule="AVCamera" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <gestureRecognizers/>
@@ -101,7 +101,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <action selector="capturePhoto:" destination="kwP-dS-e2h" eventType="touchUpInside" id="0MJ-rs-tX4"/>
+                                    <action selector="capturePhoto:" destination="kwP-dS-e2h" eventType="touchUpInside" id="agb-6R-xrb"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yEf-Z7-BNh" userLabel="Camera">
@@ -234,61 +234,61 @@
                         <viewLayoutGuide key="safeArea" id="Ehr-bq-Efz"/>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="joq-8x-0mJ"/>
-                                <exclude reference="1Yn-uu-aKD"/>
                                 <exclude reference="0Ii-kd-AHf"/>
+                                <exclude reference="1Yn-uu-aKD"/>
+                                <exclude reference="joq-8x-0mJ"/>
                                 <exclude reference="8Nw-Zb-mVN"/>
                                 <exclude reference="diE-UW-5dM"/>
                                 <exclude reference="pJL-Cp-lUS"/>
                                 <exclude reference="fU5-hn-MmR"/>
-                                <exclude reference="e5R-DP-qmu"/>
                                 <exclude reference="24q-92-Zkf"/>
-                                <exclude reference="MHf-z0-nQk"/>
                                 <exclude reference="IZZ-xe-SaO"/>
+                                <exclude reference="MHf-z0-nQk"/>
+                                <exclude reference="e5R-DP-qmu"/>
                                 <exclude reference="pdg-gy-aNa"/>
-                                <exclude reference="jan-9P-A6o"/>
-                                <exclude reference="dWW-Pd-xUk"/>
                                 <exclude reference="Qz6-it-LzY"/>
                                 <exclude reference="Zcw-rW-E7W"/>
-                                <exclude reference="sfI-du-16R"/>
+                                <exclude reference="dWW-Pd-xUk"/>
+                                <exclude reference="jan-9P-A6o"/>
                                 <exclude reference="RPB-Hh-tUT"/>
+                                <exclude reference="sfI-du-16R"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
                             <mask key="constraints">
-                                <exclude reference="qh4-Vk-v5w"/>
-                                <exclude reference="7gB-gV-FSB"/>
-                                <include reference="joq-8x-0mJ"/>
-                                <include reference="1Yn-uu-aKD"/>
-                                <exclude reference="r8p-k3-3rw"/>
-                                <exclude reference="Rn6-Vh-Hae"/>
                                 <include reference="0Ii-kd-AHf"/>
-                                <exclude reference="VD6-il-fYN"/>
+                                <include reference="1Yn-uu-aKD"/>
+                                <exclude reference="7gB-gV-FSB"/>
+                                <exclude reference="Rn6-Vh-Hae"/>
+                                <include reference="joq-8x-0mJ"/>
+                                <exclude reference="qh4-Vk-v5w"/>
+                                <exclude reference="r8p-k3-3rw"/>
                                 <include reference="8Nw-Zb-mVN"/>
-                                <exclude reference="SFr-tu-NHf"/>
+                                <exclude reference="VD6-il-fYN"/>
                                 <exclude reference="4xw-pO-yJr"/>
+                                <exclude reference="8hk-vy-WLq"/>
+                                <exclude reference="SFr-tu-NHf"/>
                                 <include reference="diE-UW-5dM"/>
                                 <include reference="pJL-Cp-lUS"/>
-                                <exclude reference="8hk-vy-WLq"/>
-                                <include reference="fU5-hn-MmR"/>
                                 <exclude reference="TSh-ag-3GH"/>
-                                <exclude reference="hoA-fe-Zup"/>
-                                <include reference="e5R-DP-qmu"/>
+                                <include reference="fU5-hn-MmR"/>
                                 <include reference="24q-92-Zkf"/>
-                                <exclude reference="MHf-z0-nQk"/>
                                 <exclude reference="IZZ-xe-SaO"/>
+                                <exclude reference="MHf-z0-nQk"/>
+                                <include reference="e5R-DP-qmu"/>
+                                <exclude reference="hoA-fe-Zup"/>
                                 <exclude reference="jxf-uS-Y2S"/>
                                 <include reference="pdg-gy-aNa"/>
                                 <exclude reference="cbX-46-qeE"/>
-                                <include reference="jan-9P-A6o"/>
-                                <exclude reference="BNb-Mv-dkj"/>
-                                <include reference="dWW-Pd-xUk"/>
-                                <include reference="Qz6-it-LzY"/>
-                                <exclude reference="el9-yY-iZf"/>
                                 <exclude reference="67j-vs-hDO"/>
+                                <exclude reference="BNb-Mv-dkj"/>
+                                <include reference="Qz6-it-LzY"/>
                                 <include reference="Zcw-rW-E7W"/>
-                                <include reference="sfI-du-16R"/>
+                                <include reference="dWW-Pd-xUk"/>
+                                <exclude reference="el9-yY-iZf"/>
+                                <include reference="jan-9P-A6o"/>
                                 <include reference="RPB-Hh-tUT"/>
+                                <include reference="sfI-du-16R"/>
                             </mask>
                         </variation>
                     </view>

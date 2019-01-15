@@ -302,8 +302,6 @@ class CameraViewController: UIViewController {
     }
   
     
-    // MARK: Capturing Photos
-    private let photoOutput = AVCapturePhotoOutput()
     
     ///Tag: ChangeCamera
     
@@ -436,6 +434,131 @@ class CameraViewController: UIViewController {
         }
     }
     
-}
+    // MARK: Capturing Photos
+     private let photoOutput = AVCapturePhotoOutput()
+    private var inProgressPhotoCaptureDelegate = [Int64: PhotoCaptureProcessor]()
+    
+     /// - Tag: CapturePhoto
+    
+    @IBAction func capturePhoto(_ photoButton: UIButton) {
+        /*
+ Truy xuất hướng video của lớp xem trước video trên hàng đợi chính trước
+ vào hàng đợi phiên. Chúng tôi làm điều này để đảm bảo các thành phần UI được truy cập vào chủ đề chính và cấu hình phiên được thực hiện trên hàng đợi phiên.
+         */
+        
+        let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
+        sessionQueue.async {
+            if let photoOutputConnection = self.photoOutput.connection(with: .video) {
+                photoOutputConnection.videoOrientation = videoPreviewLayerOrientation!
+            }
+            var photoSettings = AVCapturePhotoSettings()
+            
+            //Chụp ảnh HEIF khi được hỗ trợ. Cho phép tự động flash và hình ảnh độ phân giải cao.
+            if self.photoOutput.availablePhotoCodecTypes.contains(.hevc) {
+                photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
+            }
+            
+            if self.videoDeviceInput.device.isFlashAvailable {
+                photoSettings.flashMode = .auto
+            }
+            
+            photoSettings.isHighResolutionPhotoEnabled = true
+            if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
+                photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
+            }
 
+            let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings
+                , willCapturePhotoAnimation: {
+                    DispatchQueue.main.async {
+                        self.previewView.videoPreviewLayer.opacity = 0
+                        UIView.animate(withDuration: 0.25) {
+                            self.previewView.videoPreviewLayer.opacity = 1
+                        }
+                    }
+                    }
+                , livePhotoCaptureHandler: { capturing in
+                    self.sessionQueue.async {
+                        if capturing {
+                            self.inProgressLivePhotoCapturesCount += 1
+                        } else {
+                            self.inProgressLivePhotoCapturesCount -= 1
+                        }
+                        
+                        let inProgressLivePhotoCapturesCount = self.inProgressLivePhotoCapturesCount
+                        DispatchQueue.main.async {
+                            if inProgressLivePhotoCapturesCount > 0 {
+                                self.capturingLivePhotoLabel.isHidden = false
+                            } else if inProgressLivePhotoCapturesCount == 0 {
+                                self.capturingLivePhotoLabel.isHidden = true
+                            }else {
+                                print("Error: In progress Live Photo capture count is less than 0")
+                            }
+                        }
+                        
+                    }
+                    }
+                , completionHandler: { photoCaptureProcessor in
+                    self.sessionQueue.async {
+                        self.inProgressPhotoCaptureDelegate[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
+                    }
+            })
+            
+    
+        }
+    }
+     private var inProgressLivePhotoCapturesCount = 0
+   
+}
+        
+//        private enum LivePhotoMode {
+//        case on
+//        case off
+//    }
+//
+//    private enum DepthDataDeliveryMode {
+//        case on
+//        case off
+//    }
+//
+//    private enum PortraitEffectsMatteDeliveryMode {
+//        case on
+//        case off
+//    }
+//
+//    private var livePhotoMode: LivePhotoMode = .off
+//extension AVCaptureVideoOrientation {
+//    init?(deviceOrientation: UIDeviceOrientation) {
+//        switch deviceOrientation {
+//        case .portrait: self = .portrait
+//        case .portraitUpsideDown: self = .portraitUpsideDown
+//        case .landscapeLeft: self = .landscapeLeft
+//        case .landscapeRight: self = .landscapeRight
+//        default:  return nil
+//        }
+//    }
+//    init?(interfaceOrientation: UIInterfaceOrientation) {
+//        switch interfaceOrientation {
+//        case .portrait: self = .portrait
+//        case .portraitUpsideDown: self = .portraitUpsideDown
+//        case .landscapeRight: self = .landscapeRight
+//        case .landscapeLeft: self = .landscapeLeft
+//        default: return nil
+//        }
+//    }
+//
+//}
+
+extension AVCaptureDevice.DiscoverySession {
+    var uniqueDevicePositionsCount: Int {
+        var uniqueDevicePositions: [AVCaptureDevice.Position] = []
+        
+        for device in devices {
+            if !uniqueDevicePositions.contains(device.position) {
+                uniqueDevicePositions.append(device.position)
+            }
+        }
+        
+        return uniqueDevicePositions.count
+    }
+}
 
