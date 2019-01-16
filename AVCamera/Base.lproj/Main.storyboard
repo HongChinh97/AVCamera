@@ -163,7 +163,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <action selector="toggleLivePhotoMode:" destination="kwP-dS-e2h" eventType="touchUpInside" id="qX1-Oh-Gic"/>
+                                    <action selector="toggleLivePhotoMode:" destination="kwP-dS-e2h" eventType="touchUpInside" id="VoD-NT-oX7"/>
                                 </connections>
                             </button>
                         </subviews>
