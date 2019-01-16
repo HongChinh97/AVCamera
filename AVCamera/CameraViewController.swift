@@ -30,7 +30,7 @@ class CameraViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
+        livePhotoModeButton.isEnabled = false
         // Set up the video preview view.
         previewView.session = session
         /*
@@ -436,7 +436,7 @@ class CameraViewController: UIViewController {
     
     // MARK: Capturing Photos
      private let photoOutput = AVCapturePhotoOutput()
-    private var inProgressPhotoCaptureDelegate = [Int64: PhotoCaptureProcessor]()
+    private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureProcessor]()
     
      /// - Tag: CapturePhoto
     
@@ -499,55 +499,45 @@ class CameraViewController: UIViewController {
                     }
                 , completionHandler: { photoCaptureProcessor in
                     self.sessionQueue.async {
-                        self.inProgressPhotoCaptureDelegate[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
+                        self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
                     }
             })
-            
+            // The photo output keeps a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
+            self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
+            self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
     
         }
     }
      private var inProgressLivePhotoCapturesCount = 0
    
-}
-        
-//        private enum LivePhotoMode {
-//        case on
-//        case off
-//    }
-//
-//    private enum DepthDataDeliveryMode {
-//        case on
-//        case off
-//    }
-//
-//    private enum PortraitEffectsMatteDeliveryMode {
-//        case on
-//        case off
-//    }
-//
-//    private var livePhotoMode: LivePhotoMode = .off
-//extension AVCaptureVideoOrientation {
-//    init?(deviceOrientation: UIDeviceOrientation) {
-//        switch deviceOrientation {
-//        case .portrait: self = .portrait
-//        case .portraitUpsideDown: self = .portraitUpsideDown
-//        case .landscapeLeft: self = .landscapeLeft
-//        case .landscapeRight: self = .landscapeRight
-//        default:  return nil
-//        }
-//    }
-//    init?(interfaceOrientation: UIInterfaceOrientation) {
-//        switch interfaceOrientation {
-//        case .portrait: self = .portrait
-//        case .portraitUpsideDown: self = .portraitUpsideDown
-//        case .landscapeRight: self = .landscapeRight
-//        case .landscapeLeft: self = .landscapeLeft
-//        default: return nil
-//        }
-//    }
-//
-//}
 
+        
+        private enum LivePhotoMode {
+        case on
+        case off
+    }
+    private var livePhotoMode: LivePhotoMode = .off
+    
+    @IBAction func toggleLivePhotoMode(_ livePhotoModeButton: UIButton) {
+        sessionQueue.async {
+            self.livePhotoMode = (self.livePhotoMode == .on) ? .off : .on
+            let livePhotoMode = self.livePhotoMode
+            
+            DispatchQueue.main.async {
+                if livePhotoMode == .on {
+                    self.livePhotoModeButton.setImage(#imageLiteral(resourceName: "LivePhotoON"), for: [])
+                } else {
+                    self.livePhotoModeButton.setImage(#imageLiteral(resourceName: "LivePhotoOFF"), for: [])
+                }
+            }
+        }
+    }
+    
+    
+    
+    
+    
+}
 extension AVCaptureDevice.DiscoverySession {
     var uniqueDevicePositionsCount: Int {
         var uniqueDevicePositions: [AVCaptureDevice.Position] = []
