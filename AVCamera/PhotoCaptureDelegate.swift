@@ -92,7 +92,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             portraitEffectsMatteData = nil
         }
     }
-         
+ 
     /// - Tag: DidFinishRecordingLive
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishRecordingLivePhotoMovieForEventualFileAt outputFileURL: URL, resolvedSettings: AVCaptureResolvedPhotoSettings) {
         livePhotoCaptureHandler(false)

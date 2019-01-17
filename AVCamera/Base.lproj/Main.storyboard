@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="kwP-dS-e2h">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="kwP-dS-e2h">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -36,7 +36,7 @@
                                     <segment title="" image="MovieSelector"/>
                                 </segments>
                                 <connections>
-                                    <action selector="toggleCaptureMode:" destination="kwP-dS-e2h" eventType="valueChanged" id="0Wy-Wk-a1O"/>
+                                    <action selector="toggleCaptureMode:" destination="kwP-dS-e2h" eventType="valueChanged" id="IFA-67-YW9"/>
                                 </connections>
                             </segmentedControl>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Live" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oNv-Js-S0x" userLabel="Capturing Live Photo">
@@ -297,7 +297,7 @@
                     <connections>
                         <outlet property="cameraButton" destination="yEf-Z7-BNh" id="o3i-74-wcI"/>
                         <outlet property="cameraUnavailableLabel" destination="TBA-XT-BZL" id="QVD-9j-3a0"/>
-                        <outlet property="captureModeControl" destination="uVA-aX-wlO" id="mMf-4g-Pok"/>
+                        <outlet property="captureModeControl" destination="uVA-aX-wlO" id="WXc-8I-scX"/>
                         <outlet property="capturingLivePhotoLabel" destination="oNv-Js-S0x" id="Cag-Ht-9SR"/>
                         <outlet property="depthDataDeliveryButton" destination="WJP-gB-kwa" id="gEj-Jl-WnQ"/>
                         <outlet property="livePhotoModeButton" destination="MmV-a7-ndg" id="CDd-fK-dAH"/>

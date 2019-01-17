@@ -29,14 +29,22 @@ class CameraViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+      
+        //Vô hiệu hóa giao diện người dùng. Kích hoạt giao diện người dùng sau, nếu và chỉ khi phiên bắt đầu chạy.
         livePhotoModeButton.isEnabled = false
+//        cameraButton.isEnabled = false
+//        recordButton.isEnabled = false
+//        photoButton.isEnabled = false
+//        depthDataDeliveryButton.isEnabled = false
+//        portraitEffectsMatteDeliveryButton.isEnabled = false
+//        captureModeControl.isEnabled = false
+        
         // Set up the video preview view.
         previewView.session = session
         /*
-         
-         Kiểm tra trạng thái ủy quyền video. Yêu cầu truy cập video và âm thanh
-         truy cập là tùy chọn. Nếu người dùng từ chối truy cập âm thanh, AVCam sẽ không ghi lại âm thanh trong khi quay phim.
+           Kiểm tra trạng thái ủy quyền video. Yêu cầu truy cập video và âm thanh
+         truy cập là tùy chọn. Nếu người dùng từ chối truy cập âm thanh, AVCam sẽ
+         không ghi lại âm thanh trong khi quay phim.
          */
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
@@ -48,7 +56,6 @@ class CameraViewController: UIViewController {
              Người dùng chưa được cung cấp tùy chọn cấp
              truy cập video. Chúng tôi tạm dừng hàng đợi phiên để trì hoãn phiên
              thiết lập cho đến khi yêu cầu truy cập đã hoàn thành.
-             
              Lưu ý rằng quyền truy cập âm thanh sẽ được yêu cầu ngầm khi chúng tôi
              tạo AVCaptureDeviceInput cho âm thanh trong khi thiết lập phiên.
              */
@@ -65,15 +72,13 @@ class CameraViewController: UIViewController {
             setupResult = .notAuthorized
         }
         /*
-         
-         
          Thiết lập phiên chụp.
          Nói chung, không an toàn khi đột biến AVCaptureSession hoặc bất kỳ
          đầu vào, đầu ra hoặc kết nối từ nhiều luồng cùng một lúc.
-         
          Đừng thực hiện các tác vụ này trên hàng đợi chính vì
          AVCaptureSession.startRasty () là một cuộc gọi chặn, có thể
-         mất nhiều thời gian. Chúng tôi gửi thiết lập phiên tới sessionQueue, vì vậy rằng hàng đợi chính không bị chặn, giúp giao diện người dùng phản ứng nhanh.
+         mất nhiều thời gian. Chúng tôi gửi thiết lập phiên tới sessionQueue, vì
+         vậy rằng hàng đợi chính không bị chặn, giúp giao diện người dùng phản ứng nhanh.
          */
         sessionQueue.async {
             self.configureSession()
@@ -89,7 +94,7 @@ class CameraViewController: UIViewController {
             switch self.setupResult {
             case .success:
                 // Only setup observers and start the session running if setup succeeded.
-                //                self.addObservers()
+                // self.addObservers()
                 self.session.startRunning()
                 self.isSessionRunning = self.session.isRunning
                 
@@ -300,7 +305,81 @@ class CameraViewController: UIViewController {
         case photo = 0
         case movie = 1
     }
-  
+    @IBAction func toggleCaptureMode(_ captureModeControl: UISegmentedControl) {
+        captureModeControl.isEnabled = false
+        
+        if captureModeControl.selectedSegmentIndex == CaptureMode.photo.rawValue {
+            recordButton.isEnabled = false
+            sessionQueue.async {
+                //Xóa AVCaptureMovieFileOutput khỏi phiên vì nó không hỗ trợ chụp Live Photos
+                self.session.beginConfiguration()
+                self.session.removeOutput(self.movieFileOutput!)
+                self.session.sessionPreset = .photo
+                
+                DispatchQueue.main.async {
+                    captureModeControl.isEnabled = true
+                }
+                
+                self.movieFileOutput = nil
+                if self.photoOutput.isLivePhotoCaptureSupported {
+                    self.photoOutput.isLivePhotoCaptureEnabled = true
+                    
+                    DispatchQueue.main.async {
+                        self.livePhotoModeButton.isEnabled = true
+                        self.livePhotoModeButton.isHidden = false
+                    }
+                }
+                if self.photoOutput.isDepthDataDeliverySupported {
+                    self.photoOutput.isDepthDataDeliveryEnabled = true
+                    
+                    DispatchQueue.main.async {
+                        self.depthDataDeliveryButton.isHidden = false
+                        self.depthDataDeliveryButton.isEnabled = true
+                    }
+                }
+                if self.photoOutput.isPortraitEffectsMatteDeliverySupported {
+                    self.photoOutput.isPortraitEffectsMatteDeliveryEnabled = true
+                    
+                    DispatchQueue.main.async {
+                        self.portraitEffectsMatteDeliveryButton.isHidden = false
+                        self.portraitEffectsMatteDeliveryButton.isEnabled = true
+                    }
+                }
+                self.session.commitConfiguration()
+            }
+        } else if captureModeControl.selectedSegmentIndex == CaptureMode.movie.rawValue {
+            livePhotoModeButton.isHidden = true
+            depthDataDeliveryButton.isHidden = true
+            portraitEffectsMatteDeliveryButton.isHidden = true
+            
+            sessionQueue.async {
+                let movieFileOutput = AVCaptureMovieFileOutput()
+                
+                if self.session.canAddOutput(movieFileOutput) {
+                    self.session.beginConfiguration()
+                    self.session.addOutput(movieFileOutput)
+                    self.session.sessionPreset = .high
+                    if let connection = movieFileOutput.connection(with: .video) {
+                        if connection.isVideoStabilizationSupported {
+                            connection.preferredVideoStabilizationMode = .auto
+                        }
+                    }
+                    self.session.commitConfiguration()
+                    
+                    DispatchQueue.main.async {
+                        captureModeControl.isEnabled = true
+                    }
+                    
+                    self.movieFileOutput = movieFileOutput
+                    DispatchQueue.main.async {
+                        captureModeControl.isEnabled = true
+                    }
+                    
+                }
+            }
+        }
+    }
+    
     
     
     ///Tag: ChangeCamera
@@ -447,6 +526,7 @@ class CameraViewController: UIViewController {
          */
         
         let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
+        
         sessionQueue.async {
             if let photoOutputConnection = self.photoOutput.connection(with: .video) {
                 photoOutputConnection.videoOrientation = videoPreviewLayerOrientation!

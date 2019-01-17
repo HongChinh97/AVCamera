@@ -60,8 +60,8 @@
 			children = (
 				B2D1076921D7093900333539 /* AppDelegate.swift */,
 				B2D1077E21D711D400333539 /* PreviewView.swift */,
-				B2D1076B21D7093900333539 /* PhotoCaptureDelegate.swift */,
 				B2D1078021D7132C00333539 /* CameraViewController.swift */,
+				B2D1076B21D7093900333539 /* PhotoCaptureDelegate.swift */,
 				B2D1076D21D7093900333539 /* Main.storyboard */,
 				B2D1077021D7093A00333539 /* Assets.xcassets */,
 				B2D1077221D7093A00333539 /* LaunchScreen.storyboard */,
@@ -290,6 +290,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = R5LAY7QG8C;
 				INFOPLIST_FILE = AVCamera/Info.plist;
@@ -297,8 +298,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = Big0.AVCamera;
+				PRODUCT_BUNDLE_IDENTIFIER = HongChinh.AVCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -308,6 +310,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = R5LAY7QG8C;
 				INFOPLIST_FILE = AVCamera/Info.plist;
@@ -315,8 +318,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = Big0.AVCamera;
+				PRODUCT_BUNDLE_IDENTIFIER = HongChinh.AVCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
